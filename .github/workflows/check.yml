@@ -20,9 +20,13 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python monitor.py
-      - name: Commit dashboard data
+      -- name: Commit dashboard data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/status.json
-          git diff --cached --quiet || (git commit -m 'Update stock status' && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update stock status'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
