@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pokémon Stock Watch</title>
+<style>
+body{margin:0;background:#101827;color:#f1f5f9;font-family:Arial,sans-serif;padding:20px}
+main{max-width:700px;margin:auto}
+h1{font-size:26px}
+.subtitle{color:#94a3b8}
+.card{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:18px;margin:14px 0}
+a{color:#60a5fa}
+small{color:#94a3b8}
+</style>
+</head>
+<body>
+<main>
+<h1>⚡ Pokémon Stock Watch</h1>
+<p class="subtitle">Your personal Pokémon Center inventory dashboard</p>
+<div class="card">
+<strong>Monitor status</strong>
+<p id="status">Loading...</p>
+<small id="updated"></small>
+</div>
+<h2>Tracked products</h2>
+<div id="products" class="card">Loading products...</div>
+</main>
+<script>
+async function load(){
+ try{
+  const r=await fetch('./status.json?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw Error('HTTP '+r.status);
+  const d=await r.json();
+  document.getElementById('status').textContent='Latest status file loaded';
+  document.getElementById('updated').textContent='Data: '+JSON.stringify(d).slice(0,180);
+  const el=document.getElementById('products');
+  el.replaceChildren();
+  const products=Array.isArray(d)?d:(Array.isArray(d.products)?d.products:[]);
+  if(!products.length){
+   el.textContent='No product entries found in status.json yet.';
+   return;
+  }
+  for(const p of products){
+   const card=document.createElement('div');
+   card.className='card';
+   const name=document.createElement('strong');
+   name.textContent=p.name||p.title||'Pokémon product';
+   const status=document.createElement('p');
+   status.textContent='Status: '+(p.status||p.availability||'Unknown');
+   card.append(name,status);
+   if(p.url&&/^https:\/\//.test(p.url)){
+    const a=document.createElement('a');
+    a.href=p.url;
+    a.textContent='View product';
+    a.target='_blank';
+    a.rel='noopener noreferrer';
+    card.append(a);
+   }
+   el.append(card);
+  }
+ }catch(e){
+  document.getElementById('status').textContent='Unable to load stock data: '+e.message;
+  document.getElementById('products').textContent='Check docs/status.json';
+ }
+}
+load();
+setInterval(load,60000);
+</script>
+</body>
+</html>
