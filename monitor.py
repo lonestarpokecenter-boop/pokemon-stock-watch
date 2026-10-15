@@ -30,6 +30,16 @@ for p in PRODUCTS:
             req=urllib.request.Request(url,headers={'User-Agent':'PokemonStockWatch/1.0 (personal stock checker)','Accept':'text/html'})
             with urllib.request.urlopen(req,timeout=20) as response:
                 html=response.read(500_000).decode('utf-8','replace').lower()
+                print(
+    name,
+    'HTTP:', response.status,
+    'Page title:',
+    re.search(r'<title[^>]*>(.*?)</title>', html, re.S).group(1).strip()[:120]
+    if re.search(r'<title[^>]*>(.*?)</title>', html, re.S)
+    else 'No title',
+    'HTML bytes:', len(html)
+)
+
             # Conservative: only flag in-stock on explicit machine-readable availability.
             if re.search(r'"availability"\s*:\s*"https?://schema\.org/instock"',html):
                 status='in_stock'
