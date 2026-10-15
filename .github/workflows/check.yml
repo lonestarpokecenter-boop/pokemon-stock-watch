@@ -1,5 +1,7 @@
 name: Stock check
-on:
+
+'on':
+  workflow_dispatch:
   schedule:
     - cron: '*/30 * * * *'
   workflow_dispatch:
